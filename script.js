@@ -18,12 +18,15 @@ const CONFIG = {
   ],
 
   // Column header text to look for in each tab (case-insensitive). These
-  // must match the header row text used in your sheet.
+  // must match the header row text used in your sheet. qty/ems are optional
+  // — if a tab doesn't have that column, the site just won't show that pill.
   COLUMNS: {
     tag: "TAG",
     username: "USERNAME",
     item: "ITEM",
     status: "STATUS",
+    qty: "QTY",
+    ems: "EMS",
   },
 };
 
@@ -44,6 +47,8 @@ const resultsSec = $("#resultsSec");
 const emptyState = $("#emptyState");
 const dashboardEl = $("#dashboard");
 const orderListEl = $("#orderList");
+const filterRow = $("#filterRow");
+const themeToggle = $("#themeToggle");
 
 /* ---------------------------------------------------------------------------
    Fetch + parse
@@ -114,6 +119,8 @@ async function fetchTab(tab) {
     const username = get("username");
     let item = colIndex.item !== undefined ? get("item") : "";
     let status = get("status");
+    const qty = colIndex.qty !== undefined ? get("qty") : "";
+    const ems = colIndex.ems !== undefined ? get("ems") : "";
 
     if (!tag && !username && !item && !status) continue; // fully blank row
 
@@ -135,6 +142,8 @@ async function fetchTab(tab) {
       item,
       status,
       statusKey: normalizeStatus(status),
+      qty,
+      ems,
     });
   }
 
@@ -225,18 +234,28 @@ function renderDashboard(orders) {
 }
 
 function renderOrders(orders) {
+  if (orders.length === 0) {
+    orderListEl.innerHTML = `<p class="orderList__empty">No orders match this filter.</p>`;
+    return;
+  }
+
   orderListEl.innerHTML = orders
-    .map(
-      (o) => `
+    .map((o) => {
+      const pills = [];
+      if (o.qty) pills.push(`<span class="pill">Qty: ${escapeHTML(o.qty)}</span>`);
+      if (o.ems) pills.push(`<span class="pill pill--ems">EMS: ${escapeHTML(o.ems)}</span>`);
+
+      return `
       <article class="orderCard">
         <span class="orderCard__tag">${escapeHTML(o.tag || "\u2014")}</span>
         <div class="orderCard__main">
           <div class="orderCard__item">${escapeHTML(o.item || "\u2014")}</div>
           <div class="orderCard__meta">@${escapeHTML(o.username.replace(/^@+/, ""))}</div>
+          ${pills.length ? `<div class="orderCard__pills">${pills.join("")}</div>` : ""}
         </div>
         <span class="stamp stamp--${o.statusKey}">${escapeHTML(o.status || "Unknown")}</span>
-      </article>`
-    )
+      </article>`;
+    })
     .join("");
 }
 
@@ -246,6 +265,32 @@ function escapeHTML(str) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 }
+
+/* ---------------------------------------------------------------------------
+   Status filter
+--------------------------------------------------------------------------- */
+
+let CURRENT_MATCHES = [];
+let CURRENT_FILTER = "all";
+
+function applyFilter(filterKey) {
+  CURRENT_FILTER = filterKey;
+
+  filterRow.querySelectorAll(".filterChip").forEach((btn) => {
+    btn.classList.toggle("is-active", btn.dataset.filter === filterKey);
+  });
+
+  const filtered =
+    filterKey === "all" ? CURRENT_MATCHES : CURRENT_MATCHES.filter((o) => o.statusKey === filterKey);
+
+  renderOrders(filtered);
+}
+
+filterRow.addEventListener("click", (e) => {
+  const btn = e.target.closest(".filterChip");
+  if (!btn) return;
+  applyFilter(btn.dataset.filter);
+});
 
 /* ---------------------------------------------------------------------------
    Search
@@ -273,14 +318,37 @@ async function handleSearch(e) {
     return;
   }
 
+  CURRENT_MATCHES = matches;
   renderDashboard(matches);
-  renderOrders(matches);
+  applyFilter("all");
   emptyState.hidden = true;
   resultsSec.hidden = false;
   searchStatus.textContent = `Found ${matches.length} order${matches.length === 1 ? "" : "s"} for @${query}.`;
 }
 
 searchForm.addEventListener("submit", handleSearch);
+
+/* ---------------------------------------------------------------------------
+   Dark mode
+--------------------------------------------------------------------------- */
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+  if (themeToggle) themeToggle.textContent = theme === "dark" ? "\u2600\ufe0f" : "\ud83c\udf19";
+}
+
+const savedTheme =
+  localStorage.getItem("theme") ||
+  (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+applyTheme(savedTheme);
+
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(next);
+  });
+}
 
 /* ---------------------------------------------------------------------------
    Init
