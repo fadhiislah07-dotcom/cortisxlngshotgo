@@ -61,7 +61,7 @@ function normalizeUsername(raw) {
 
 async function fetchTab(tab) {
   const url =
-    `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&gid=${encodeURIComponent(tab.gid)}`;
+    `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&headers=0&gid=${encodeURIComponent(tab.gid)}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Could not load tab "${tab.name}" (HTTP ${res.status})`);
@@ -79,7 +79,7 @@ async function fetchTab(tab) {
   let headerRowIndex = -1;
   let colIndex = {};
 
-  for (let i = 0; i < Math.min(rows.length, 10); i++) {
+  for (let i = 0; i < Math.min(rows.length, 15); i++) {
     const cells = (rows[i].c || []).map((c) => stripInvisible(c?.v).toUpperCase());
     const found = {};
     Object.entries(wanted).forEach(([key, label]) => {
@@ -94,7 +94,10 @@ async function fetchTab(tab) {
   }
 
   if (headerRowIndex === -1) {
-    console.warn(`Header row not found in tab "${tab.name}" — skipping.`);
+    console.warn(
+      `Header row not found in tab "${tab.name}" (gid ${tab.gid}) — skipping this tab. ` +
+      `Check that it has a row with TAG / USERNAME / STATUS headers.`
+    );
     return [];
   }
 
