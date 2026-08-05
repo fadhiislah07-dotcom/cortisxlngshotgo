@@ -19,15 +19,15 @@ const CONFIG = {
 
   // Column header text to look for in each tab (case-insensitive, punctuation
   // and extra spacing ignored). tag/username/status are required — if a tab
-  // is missing any of those three, that tab is skipped. item/qty/ems are
-  // optional — if a tab doesn't have that column, the site just won't show
-  // that piece of info for orders in that tab.
+  // is missing any of those three, that tab is skipped. item/qty/ems/remark
+  // are optional. Each entry can be one label or an array of accepted
+  // variants — e.g. qty accepts both "QTY" and "QUANTITY".
   COLUMNS: {
     tag: "TAG",
     username: "USERNAME",
     item: "ITEM",
     status: "STATUS",
-    qty: "QTY",
+    qty: ["QTY", "QUANTITY", "QTY/PCS", "QTY(PCS)"],
     ems: "EMS",
     remark: "REMARK",
   },
@@ -111,7 +111,10 @@ async function fetchTab(tab) {
 
   const rows = json.table.rows || [];
   const wanted = CONFIG.COLUMNS;
-  const wantedNorm = Object.fromEntries(Object.entries(wanted).map(([k, v]) => [k, normalizeHeader(v)]));
+  // Normalize each column's accepted label(s) into an array of normalized strings.
+  const wantedNorm = Object.fromEntries(
+    Object.entries(wanted).map(([k, v]) => [k, (Array.isArray(v) ? v : [v]).map(normalizeHeader)])
+  );
 
   // Scan every row for the one that contains our required header labels.
   // (Sheets often have a title row and a blank row above the real headers,
@@ -122,9 +125,9 @@ async function fetchTab(tab) {
   for (let i = 0; i < rows.length; i++) {
     const cells = (rows[i].c || []).map((c) => normalizeHeader(c?.v));
     const found = {};
-    Object.entries(wantedNorm).forEach(([key, label]) => {
-      let idx = cells.findIndex((c) => c === label);
-      if (idx === -1) idx = cells.findIndex((c) => c && c.includes(label));
+    Object.entries(wantedNorm).forEach(([key, labels]) => {
+      let idx = cells.findIndex((c) => labels.includes(c));
+      if (idx === -1) idx = cells.findIndex((c) => c && labels.some((label) => c.includes(label)));
       if (idx !== -1) found[key] = idx;
     });
     if (found.tag !== undefined && found.username !== undefined && found.status !== undefined) {
