@@ -29,6 +29,7 @@ const CONFIG = {
     status: "STATUS",
     qty: "QTY",
     ems: "EMS",
+    remark: "REMARK",
   },
 };
 
@@ -158,6 +159,7 @@ async function fetchTab(tab) {
     let status = get("status");
     const qtyRaw = get("qty");
     const ems = get("ems");
+    const remark = get("remark");
     const qtyDisplay = colIndex.qty !== undefined ? qtyRaw || "1" : ""; // blank QTY cell means "1"
 
     if (!tag && !username && !item && !status) continue; // fully blank row
@@ -182,6 +184,7 @@ async function fetchTab(tab) {
       statusKey: normalizeStatus(status),
       qty: qtyDisplay,
       ems,
+      remark,
     });
   }
 
@@ -216,7 +219,7 @@ function renderSyncPanel() {
         <strong>${escapeHTML(r.name)}</strong> (gid ${escapeHTML(r.gid)}) — ${escapeHTML(r.message)}
       </div>`;
     }
-    const cols = ["tag", "username", "item", "status", "qty", "ems"]
+    const cols = ["tag", "username", "item", "status", "qty", "ems", "remark"]
       .map((k) => `${k}: ${r.columns[k] ? "col " + r.columns[k] : "\u2014 not found"}`)
       .join(" · ");
     return `<div class="syncRow syncRow--ok">
@@ -304,6 +307,7 @@ function renderOrders(orders) {
           <div class="orderCard__item">${escapeHTML(o.item || "\u2014")}</div>
           <div class="orderCard__meta">@${escapeHTML(o.username.replace(/^@+/, ""))}</div>
           ${pills.length ? `<div class="orderCard__pills">${pills.join("")}</div>` : ""}
+          ${o.remark ? `<div class="orderCard__remark">📝 ${escapeHTML(o.remark)}</div>` : ""}
         </div>
         <span class="stamp stamp--${o.statusKey}">${escapeHTML(o.status || "Unknown")}</span>
       </article>`;
