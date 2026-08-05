@@ -88,7 +88,8 @@ async function fetchTab(tab) {
     const cells = (rows[i].c || []).map((c) => stripInvisible(c?.v).toUpperCase());
     const found = {};
     Object.entries(wanted).forEach(([key, label]) => {
-      const idx = cells.findIndex((c) => c === label.toUpperCase());
+      let idx = cells.findIndex((c) => c === label.toUpperCase());
+      if (idx === -1) idx = cells.findIndex((c) => c.includes(label.toUpperCase()));
       if (idx !== -1) found[key] = idx;
     });
     if (found.tag !== undefined && found.username !== undefined && found.status !== undefined) {
@@ -96,6 +97,10 @@ async function fetchTab(tab) {
       colIndex = found;
       break;
     }
+  }
+
+  if (headerRowIndex !== -1) {
+    console.log(`[${tab.name}] detected columns:`, colIndex);
   }
 
   if (headerRowIndex === -1) {
