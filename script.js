@@ -11,10 +11,10 @@ const CONFIG = {
   // number after "gid=" in the browser's address bar. gid=0 is usually the
   // first/leftmost tab. Add or remove lines as needed — order doesn't matter.
   SHEET_TABS: [
-    { name: "Main", gid: "0" },
-    // { name: "KR GO",  gid: "123456789" },
-    // { name: "CN GO",  gid: "987654321" },
-    // { name: "INA GO", gid: "111222333" },
+    { name: "KR GO", gid: "0" },
+    { name: "CN GO", gid: "688871900" },
+    { name: "INA GO", gid: "373988392" },
+    { name: "MY GO + BULK", gid: "773812417" },
   ],
 
   // Column header text to look for in each tab (case-insensitive). These
