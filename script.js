@@ -121,6 +121,7 @@ async function fetchTab(tab) {
     let status = get("status");
     const qty = colIndex.qty !== undefined ? get("qty") : "";
     const ems = colIndex.ems !== undefined ? get("ems") : "";
+    const qtyDisplay = colIndex.qty !== undefined ? qty || "1" : ""; // blank QTY cell means "1"
 
     if (!tag && !username && !item && !status) continue; // fully blank row
 
@@ -142,7 +143,7 @@ async function fetchTab(tab) {
       item,
       status,
       statusKey: normalizeStatus(status),
-      qty,
+      qty: qtyDisplay,
       ems,
     });
   }
