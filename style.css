@@ -252,6 +252,36 @@ a{ color:inherit; }
   min-height:1em;
 }
 
+.syncToggle{
+  margin:10px 2px 0;
+  border:0; background:transparent; cursor:pointer;
+  font-family:var(--font-mono);
+  font-size:11px; letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  padding:2px 0;
+}
+.syncToggle:hover{ color:var(--navy); }
+.syncToggle:focus-visible{ outline:2px solid var(--red); outline-offset:2px; }
+
+.syncPanel{
+  margin-top:8px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  padding:12px 14px;
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  line-height:1.6;
+  max-height:260px;
+  overflow-y:auto;
+}
+.syncPanel[hidden]{ display:none; }
+.syncRow{ padding:6px 0; border-bottom:1px solid var(--line-soft); }
+.syncRow:last-child{ border-bottom:0; }
+.syncRow--bad{ color:var(--red); }
+.syncRow--ok{ color:var(--ink); }
+.syncRow__cols{ color:var(--muted); font-size:11px; }
+
 /* ==========================================================================
    DASHBOARD — stat cards
    ========================================================================== */
