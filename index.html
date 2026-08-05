@@ -20,7 +20,10 @@
   <div class="siteHead__inner">
     <div class="siteHead__mark">GO&nbsp;/&nbsp;01</div>
     <h1 class="siteHead__title">CORTISXLNGSHOT<span>GO &amp; EVENTS</span></h1>
-    <div class="siteHead__mark siteHead__mark--right">TELEGRAM ORDER LOOKUP</div>
+    <div class="siteHead__right">
+      <span class="siteHead__mark">TELEGRAM ORDER LOOKUP</span>
+      <button id="themeToggle" class="themeToggle" type="button" aria-label="Toggle dark mode">🌙</button>
+    </div>
   </div>
   <div class="siteHead__ticker">
     <div class="siteHead__tickerTrack">
@@ -106,6 +109,14 @@
     <div class="dashSec__label">
       <span class="searchSec__num">04</span>
       <span>YOUR&nbsp;ORDERS</span>
+    </div>
+
+    <div id="filterRow" class="filterRow" role="group" aria-label="Filter orders by status">
+      <button class="filterChip is-active" data-filter="all" type="button">All</button>
+      <button class="filterChip" data-filter="secured" type="button">Secured</button>
+      <button class="filterChip" data-filter="transit" type="button">In Transit</button>
+      <button class="filterChip" data-filter="admin" type="button">Admin House</button>
+      <button class="filterChip" data-filter="posted" type="button">Posted Out</button>
     </div>
 
     <div id="orderList" class="orderList">
