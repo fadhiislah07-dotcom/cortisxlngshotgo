@@ -102,16 +102,30 @@ async function fetchTab(tab) {
   }
 
   const out = [];
+  let lastTag = "";
+  let lastItem = "";
+  let lastStatus = "";
+
   for (let i = headerRowIndex + 1; i < rows.length; i++) {
     const c = rows[i].c || [];
     const get = (key) => stripInvisible(c[colIndex[key]]?.v ?? "");
 
-    const tag = get("tag");
+    let tag = get("tag");
     const username = get("username");
-    const item = colIndex.item !== undefined ? get("item") : "";
-    const status = get("status");
+    let item = colIndex.item !== undefined ? get("item") : "";
+    let status = get("status");
 
-    if (!tag && !username) continue; // skip blank rows
+    if (!tag && !username && !item && !status) continue; // fully blank row
+
+    // Forward-fill merged cells: if a batch's TAG/ITEM/STATUS is merged
+    // across several rows, only the first row carries the value and the
+    // rest come back blank from the sheet — carry the last seen value
+    // forward so every row still shows the right info.
+    if (tag) lastTag = tag; else tag = lastTag;
+    if (item) lastItem = item; else item = lastItem;
+    if (status) lastStatus = status; else status = lastStatus;
+
+    if (!username) continue; // no customer to attach this row to
 
     out.push({
       tab: tab.name,
@@ -135,7 +149,8 @@ async function loadAllData() {
     DATA_READY = true;
 
     // Diagnostics — safe to leave in, only shows when something looks wrong.
-    console.log(`Loaded ${ALL_ORDERS.length} order rows from ${CONFIG.SHEET_TABS.length} tab(s).`);
+    const breakdown = CONFIG.SHEET_TABS.map((t, i) => `${t.name}: ${results[i].length}`).join(", ");
+    console.log(`Loaded ${ALL_ORDERS.length} order rows total — ${breakdown}`);
 
     if (ALL_ORDERS.length === 0) {
       searchStatus.textContent =
