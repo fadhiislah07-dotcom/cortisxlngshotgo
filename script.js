@@ -17,9 +17,11 @@ const CONFIG = {
     { name: "MY GO + BULK", gid: "773812417" },
   ],
 
-  // Column header text to look for in each tab (case-insensitive). These
-  // must match the header row text used in your sheet. qty/ems are optional
-  // — if a tab doesn't have that column, the site just won't show that pill.
+  // Column header text to look for in each tab (case-insensitive, punctuation
+  // and extra spacing ignored). tag/username/status are required — if a tab
+  // is missing any of those three, that tab is skipped. item/qty/ems are
+  // optional — if a tab doesn't have that column, the site just won't show
+  // that piece of info for orders in that tab.
   COLUMNS: {
     tag: "TAG",
     username: "USERNAME",
@@ -37,6 +39,7 @@ const CONFIG = {
 
 let ALL_ORDERS = [];
 let DATA_READY = false;
+let TAB_REPORTS = []; // diagnostics shown in the "Sync details" panel
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -49,9 +52,11 @@ const dashboardEl = $("#dashboard");
 const orderListEl = $("#orderList");
 const filterRow = $("#filterRow");
 const themeToggle = $("#themeToggle");
+const syncToggle = $("#syncToggle");
+const syncPanel = $("#syncPanel");
 
 /* ---------------------------------------------------------------------------
-   Fetch + parse
+   Helpers
 --------------------------------------------------------------------------- */
 
 function stripInvisible(str) {
@@ -64,32 +69,61 @@ function normalizeUsername(raw) {
   return stripInvisible(raw).replace(/^@+/, "").toLowerCase();
 }
 
+// Loosely normalize header text for matching: uppercase, collapse whitespace,
+// drop anything that isn't a letter or digit. This means "QTY", "Qty ",
+// "Qty/Pcs", "QTY:" etc. all match a target of "QTY".
+function normalizeHeader(raw) {
+  return stripInvisible(raw).toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function colLetter(idx) {
+  let n = idx;
+  let s = "";
+  do {
+    s = String.fromCharCode(65 + (n % 26)) + s;
+    n = Math.floor(n / 26) - 1;
+  } while (n >= 0);
+  return s;
+}
+
+/* ---------------------------------------------------------------------------
+   Fetch + parse one tab
+--------------------------------------------------------------------------- */
+
 async function fetchTab(tab) {
-  const url =
-    `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&headers=0&gid=${encodeURIComponent(tab.gid)}`;
+  const report = { name: tab.name, gid: tab.gid, ok: false, rowCount: 0, columns: {}, message: "" };
 
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Could not load tab "${tab.name}" (HTTP ${res.status})`);
-  const text = await res.text();
-
-  const jsonStart = text.indexOf("{");
-  const jsonEnd = text.lastIndexOf("}");
-  const json = JSON.parse(text.slice(jsonStart, jsonEnd + 1));
+  let json;
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&headers=0&gid=${encodeURIComponent(tab.gid)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    const jsonStart = text.indexOf("{");
+    const jsonEnd = text.lastIndexOf("}");
+    json = JSON.parse(text.slice(jsonStart, jsonEnd + 1));
+  } catch (err) {
+    report.message = `Could not load this tab (${err.message}). Check the gid and that the sheet is shared as "Anyone with the link – Viewer."`;
+    TAB_REPORTS.push(report);
+    return [];
+  }
 
   const rows = json.table.rows || [];
   const wanted = CONFIG.COLUMNS;
+  const wantedNorm = Object.fromEntries(Object.entries(wanted).map(([k, v]) => [k, normalizeHeader(v)]));
 
-  // find the header row by scanning the first ~10 rows for cells that match
-  // TAG / USERNAME / STATUS — makes this resilient to blank title rows.
+  // Scan every row for the one that contains our required header labels.
+  // (Sheets often have a title row and a blank row above the real headers,
+  // so we can't just assume row 1 or row 3 — we search for it.)
   let headerRowIndex = -1;
   let colIndex = {};
 
-  for (let i = 0; i < Math.min(rows.length, 15); i++) {
-    const cells = (rows[i].c || []).map((c) => stripInvisible(c?.v).toUpperCase());
+  for (let i = 0; i < rows.length; i++) {
+    const cells = (rows[i].c || []).map((c) => normalizeHeader(c?.v));
     const found = {};
-    Object.entries(wanted).forEach(([key, label]) => {
-      let idx = cells.findIndex((c) => c === label.toUpperCase());
-      if (idx === -1) idx = cells.findIndex((c) => c.includes(label.toUpperCase()));
+    Object.entries(wantedNorm).forEach(([key, label]) => {
+      let idx = cells.findIndex((c) => c === label);
+      if (idx === -1) idx = cells.findIndex((c) => c && c.includes(label));
       if (idx !== -1) found[key] = idx;
     });
     if (found.tag !== undefined && found.username !== undefined && found.status !== undefined) {
@@ -99,17 +133,15 @@ async function fetchTab(tab) {
     }
   }
 
-  if (headerRowIndex !== -1) {
-    console.log(`[${tab.name}] detected columns:`, colIndex);
-  }
-
   if (headerRowIndex === -1) {
-    console.warn(
-      `Header row not found in tab "${tab.name}" (gid ${tab.gid}) — skipping this tab. ` +
-      `Check that it has a row with TAG / USERNAME / STATUS headers.`
-    );
+    report.message = 'No row with TAG / USERNAME / STATUS headers was found in this tab.';
+    TAB_REPORTS.push(report);
     return [];
   }
+
+  report.columns = Object.fromEntries(
+    Object.entries(colIndex).map(([key, idx]) => [key, colLetter(idx)])
+  );
 
   const out = [];
   let lastTag = "";
@@ -118,15 +150,15 @@ async function fetchTab(tab) {
 
   for (let i = headerRowIndex + 1; i < rows.length; i++) {
     const c = rows[i].c || [];
-    const get = (key) => stripInvisible(c[colIndex[key]]?.v ?? "");
+    const get = (key) => (colIndex[key] !== undefined ? stripInvisible(c[colIndex[key]]?.v ?? "") : "");
 
     let tag = get("tag");
     const username = get("username");
-    let item = colIndex.item !== undefined ? get("item") : "";
+    let item = get("item");
     let status = get("status");
-    const qty = colIndex.qty !== undefined ? get("qty") : "";
-    const ems = colIndex.ems !== undefined ? get("ems") : "";
-    const qtyDisplay = colIndex.qty !== undefined ? qty || "1" : ""; // blank QTY cell means "1"
+    const qtyRaw = get("qty");
+    const ems = get("ems");
+    const qtyDisplay = colIndex.qty !== undefined ? qtyRaw || "1" : ""; // blank QTY cell means "1"
 
     if (!tag && !username && !item && !status) continue; // fully blank row
 
@@ -153,34 +185,57 @@ async function fetchTab(tab) {
     });
   }
 
+  report.ok = true;
+  report.rowCount = out.length;
+  TAB_REPORTS.push(report);
   return out;
 }
 
 async function loadAllData() {
   searchStatus.textContent = "Loading masterlist…";
-  try {
-    const results = await Promise.all(CONFIG.SHEET_TABS.map(fetchTab));
-    ALL_ORDERS = results.flat();
-    DATA_READY = true;
+  TAB_REPORTS = [];
 
-    // Diagnostics — safe to leave in, only shows when something looks wrong.
-    const breakdown = CONFIG.SHEET_TABS.map((t, i) => `${t.name}: ${results[i].length}`).join(", ");
-    console.log(`Loaded ${ALL_ORDERS.length} order rows total — ${breakdown}`);
+  const results = await Promise.all(CONFIG.SHEET_TABS.map(fetchTab));
+  ALL_ORDERS = results.flat();
+  DATA_READY = true;
 
-    if (ALL_ORDERS.length === 0) {
-      searchStatus.textContent =
-        "The masterlist loaded, but no order rows were found. Check that your sheet is shared as " +
-        "\u201CAnyone with the link \u2013 Viewer,\u201D and that SHEET_TABS in script.js has the right gid(s) " +
-        "and that the header row has exact column names TAG / USERNAME / STATUS.";
-    } else {
-      searchStatus.textContent = "";
-    }
-  } catch (err) {
-    console.error(err);
+  renderSyncPanel();
+
+  if (ALL_ORDERS.length === 0) {
     searchStatus.textContent =
-      "Couldn't load the masterlist right now. Make sure the Google Sheet is shared as \u201CAnyone with the link \u2013 Viewer.\u201D";
+      "The masterlist loaded, but no order rows were found — open \u201CSync details\u201D below to see why.";
+  } else {
+    searchStatus.textContent = "";
   }
 }
+
+function renderSyncPanel() {
+  syncPanel.innerHTML = TAB_REPORTS.map((r) => {
+    if (!r.ok) {
+      return `<div class="syncRow syncRow--bad">
+        <strong>${escapeHTML(r.name)}</strong> (gid ${escapeHTML(r.gid)}) — ${escapeHTML(r.message)}
+      </div>`;
+    }
+    const cols = ["tag", "username", "item", "status", "qty", "ems"]
+      .map((k) => `${k}: ${r.columns[k] ? "col " + r.columns[k] : "\u2014 not found"}`)
+      .join(" · ");
+    return `<div class="syncRow syncRow--ok">
+      <strong>${escapeHTML(r.name)}</strong> — ${r.rowCount} order rows loaded<br>
+      <span class="syncRow__cols">${escapeHTML(cols)}</span>
+    </div>`;
+  }).join("");
+}
+
+syncToggle.addEventListener("click", () => {
+  const isHidden = syncPanel.hasAttribute("hidden");
+  if (isHidden) {
+    syncPanel.removeAttribute("hidden");
+    syncToggle.textContent = "Sync details \u25b4";
+  } else {
+    syncPanel.setAttribute("hidden", "");
+    syncToggle.textContent = "Sync details \u25be";
+  }
+});
 
 /* ---------------------------------------------------------------------------
    Status classification
@@ -193,21 +248,12 @@ function normalizeStatus(raw) {
   if (s === "ADMIN HOUSE") return "admin";
   if (s === "POSTED OUT") return "posted";
   if (!s) return "other";
-  // fallback: loose contains-match, in case of stray spacing/punctuation
   if (s.includes("SECURED")) return "secured";
   if (s.includes("OTW") || s.includes("ARRIVED AT WH")) return "transit";
   if (s.includes("ADMIN")) return "admin";
   if (s.includes("POSTED")) return "posted";
   return "other";
 }
-
-const STATUS_LABEL = {
-  secured: "Secured",
-  transit: "In Transit",
-  admin: "Admin House",
-  posted: "Posted Out",
-  other: "Other",
-};
 
 /* ---------------------------------------------------------------------------
    Rendering
@@ -218,14 +264,14 @@ function renderDashboard(orders) {
   orders.forEach((o) => counts[o.statusKey]++);
 
   const cards = [
-    { key: "total", label: "Total Orders", value: orders.length, cls: "statCard--total" },
-    { key: "secured", label: "Secured", value: counts.secured, cls: "statCard--secured" },
-    { key: "transit", label: "In Transit", value: counts.transit, cls: "statCard--transit" },
-    { key: "admin", label: "Admin House", value: counts.admin, cls: "statCard--admin" },
-    { key: "posted", label: "Posted Out", value: counts.posted, cls: "statCard--posted" },
+    { label: "Total Orders", value: orders.length, cls: "statCard--total" },
+    { label: "Secured", value: counts.secured, cls: "statCard--secured" },
+    { label: "In Transit", value: counts.transit, cls: "statCard--transit" },
+    { label: "Admin House", value: counts.admin, cls: "statCard--admin" },
+    { label: "Posted Out", value: counts.posted, cls: "statCard--posted" },
   ];
   if (counts.other > 0) {
-    cards.push({ key: "other", label: "Other", value: counts.other, cls: "statCard--other" });
+    cards.push({ label: "Other", value: counts.other, cls: "statCard--other" });
   }
 
   dashboardEl.innerHTML = cards
@@ -277,18 +323,13 @@ function escapeHTML(str) {
 --------------------------------------------------------------------------- */
 
 let CURRENT_MATCHES = [];
-let CURRENT_FILTER = "all";
 
 function applyFilter(filterKey) {
-  CURRENT_FILTER = filterKey;
-
   filterRow.querySelectorAll(".filterChip").forEach((btn) => {
     btn.classList.toggle("is-active", btn.dataset.filter === filterKey);
   });
-
   const filtered =
     filterKey === "all" ? CURRENT_MATCHES : CURRENT_MATCHES.filter((o) => o.statusKey === filterKey);
-
   renderOrders(filtered);
 }
 
