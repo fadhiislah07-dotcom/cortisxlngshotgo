@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GO MASTERLIST TRACKER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="grain"></div>
+
+<!-- ============================================================ -->
+<!-- HEADER / MANIFEST STRIP                                       -->
+<!-- ============================================================ -->
+<header class="siteHead">
+  <div class="siteHead__inner">
+    <div class="siteHead__mark">GO&nbsp;/&nbsp;01</div>
+    <h1 class="siteHead__title">MASTERLIST<span>TRACKER</span></h1>
+    <div class="siteHead__mark siteHead__mark--right">TELEGRAM ORDER LOOKUP</div>
+  </div>
+  <div class="siteHead__ticker">
+    <div class="siteHead__tickerTrack">
+      <span>SECURED</span><span>•</span><span>IN&nbsp;TRANSIT</span><span>•</span><span>ADMIN&nbsp;HOUSE</span><span>•</span><span>POSTED&nbsp;OUT</span><span>•</span>
+      <span>SECURED</span><span>•</span><span>IN&nbsp;TRANSIT</span><span>•</span><span>ADMIN&nbsp;HOUSE</span><span>•</span><span>POSTED&nbsp;OUT</span><span>•</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============================================================ -->
+  <!-- ANNOUNCEMENTS — edit the text/emoji inside each box below.     -->
+  <!-- Both boxes are permanent and always visible on the page.      -->
+  <!-- ============================================================ -->
+  <section class="announcements" aria-label="Announcements">
+
+    <!-- ===== ANNOUNCEMENT BOX 1 — WELCOME MESSAGE (edit below) ===== -->
+    <article class="ann ann--one">
+      <div class="ann__tag">ANNOUNCEMENT&nbsp;01</div>
+      <div class="ann__body">
+        <p class="ann__emoji">👋</p>
+        <p class="ann__text">
+          <strong>Welcome to the GO Masterlist Tracker!</strong><br>
+          Search your Telegram username below to check the status of every order you're part of. Updates are pulled straight from the masterlist, so it's always current.
+        </p>
+      </div>
+    </article>
+    <!-- ===== END ANNOUNCEMENT BOX 1 ===== -->
+
+    <!-- ===== ANNOUNCEMENT BOX 2 — REMINDERS (edit below) ===== -->
+    <article class="ann ann--two">
+      <div class="ann__tag">ANNOUNCEMENT&nbsp;02</div>
+      <div class="ann__body">
+        <p class="ann__emoji">📌</p>
+        <p class="ann__text">
+          <strong>Reminders</strong><br>
+          Please search using the exact Telegram username you used to order (with or without the @). If your item shows "Admin House," it has arrived locally and is being prepped for postage.
+        </p>
+      </div>
+    </article>
+    <!-- ===== END ANNOUNCEMENT BOX 2 ===== -->
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SEARCH                                                        -->
+  <!-- ============================================================ -->
+  <section class="searchSec" aria-label="Search your orders">
+    <div class="searchSec__label">
+      <span class="searchSec__num">02</span>
+      <span>TRACK&nbsp;YOUR&nbsp;ORDER</span>
+    </div>
+    <form id="searchForm" class="searchBar" autocomplete="off">
+      <span class="searchBar__at">@</span>
+      <input
+        id="searchInput"
+        class="searchBar__input"
+        type="text"
+        placeholder="your telegram username"
+        aria-label="Telegram username"
+        required
+      >
+      <button type="submit" class="searchBar__btn">SEARCH</button>
+    </form>
+    <p id="searchStatus" class="searchSec__status" aria-live="polite"></p>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- RESULTS: DASHBOARD + ORDER LIST (populated by script.js)      -->
+  <!-- ============================================================ -->
+  <section id="resultsSec" class="resultsSec" hidden>
+
+    <div class="dashSec__label">
+      <span class="searchSec__num">03</span>
+      <span>YOUR&nbsp;DASHBOARD</span>
+    </div>
+
+    <div id="dashboard" class="dashboard">
+      <!-- stat cards injected by script.js -->
+    </div>
+
+    <div class="dashSec__label">
+      <span class="searchSec__num">04</span>
+      <span>YOUR&nbsp;ORDERS</span>
+    </div>
+
+    <div id="orderList" class="orderList">
+      <!-- order cards injected by script.js -->
+    </div>
+
+  </section>
+
+  <!-- Empty / initial state -->
+  <section id="emptyState" class="emptyState">
+    <div class="emptyState__ticket">
+      <div class="emptyState__ticketTop">NO&nbsp;SEARCH&nbsp;YET</div>
+      <p>Enter your Telegram username above to pull up your orders and tracking status.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="siteFoot">
+  <span>GO MASTERLIST TRACKER</span>
+  <span class="siteFoot__dot">•</span>
+  <span>data synced from the official masterlist sheet</span>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
