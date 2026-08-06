@@ -318,7 +318,7 @@ function renderOrders(orders) {
     .map((o) => {
       const pills = [];
       if (o.qty) pills.push(`<span class="pill">Qty: ${escapeHTML(o.qty)}</span>`);
-      if (o.ems) pills.push(`<span class="pill pill--ems">EMS: ${escapeHTML(o.ems)}</span>`);
+      if (o.ems) pills.push(`<span class="pill pill--ems ${emsClass(o.ems)}">EMS: ${escapeHTML(o.ems)}</span>`);
 
       return `
       <article class="orderCard">
@@ -340,6 +340,13 @@ function escapeHTML(str) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
+
+function emsClass(raw) {
+  const s = stripInvisible(raw).toUpperCase();
+  if (s.includes("PENDING")) return "pill--pending";
+  if (s.includes("PAID")) return "pill--paid";
+  return "";
 }
 
 /* ---------------------------------------------------------------------------
