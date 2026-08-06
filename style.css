@@ -1,19 +1,20 @@
 /* ==========================================================================
-   TOKENS — derived from the reference logo/photo (navy jacket, orange puffer,
-   red tag stamps, paper-cream backdrop). Edit here to retheme the whole site.
+   TOKENS — matcha green + strawberry pink theme. Edit here to retheme the
+   whole site. Status colors stay matched to the masterlist sheet's own
+   dropdown colors (see --status-* below) rather than the decorative palette.
    ========================================================================== */
 :root{
-  --cream:      #F1ECE0;
-  --paper:      #FAF7F0;
-  --navy:       #101B33;
-  --navy-2:     #1D2E54;
-  --orange:     #F1592A;
-  --orange-2:   #FF7A45;
-  --red:        #D62839;
-  --ink:        #17140F;
-  --muted:      #6E6656;
-  --line:       #DBD3C0;
-  --line-soft:  #E8E2D2;
+  --cream:      #F1F0E4;
+  --paper:      #FAFAF2;
+  --navy:       #3E5334;
+  --navy-2:     #52693F;
+  --orange:     #EB6F91;
+  --orange-2:   #F6A6BE;
+  --red:        #C2415F;
+  --ink:        #2A2E1F;
+  --muted:      #75775F;
+  --line:       #D9D6BE;
+  --line-soft:  #E7E5D3;
 
   --font-display: 'Anton', sans-serif;
   --font-body: 'Inter', sans-serif;
@@ -23,7 +24,7 @@
 
   /* status colors — matched to the dropdown colors in the masterlist sheet */
   --status-secured:   #1C4E9E; /* blue, like the sheet's SECURED pill */
-  --status-transit:   #F1592A; /* site accent — sheet doesn't have one combined color for the 3 merged statuses */
+  --status-transit:   #EB6F91; /* site accent — sheet doesn't have one combined color for the 3 merged statuses */
   --status-admin:     #8A6D3B; /* gold/brown, like the sheet's ADMIN HOUSE pill */
   --status-posted:    #2E9E44; /* green, like the sheet's POSTED OUT pill */
   --status-paid:      #3C8C40;
@@ -31,25 +32,25 @@
   --status-pending:   #B5722A;
   --status-pending-bg:#FBE4C8;
 
-  --bg-overlay: rgba(241,236,224,.88);
+  --bg-overlay: rgba(241,240,228,.88);
 
   /* text color for things that sit on a dark/accent surface (header, tag
      chips, buttons) — stays light in both themes, unlike --paper which
      flips to a dark card-surface color in dark mode */
-  --on-dark: #F4EFE2;
+  --on-dark: #F6F4E9;
 }
 
 /* ---- dark mode ---- */
 :root[data-theme="dark"]{
-  --bg-overlay: rgba(13,18,32,.86);
-  --cream:      #0D1220;
-  --paper:      #161C2C;
-  --navy:       #090D18;
-  --navy-2:     #131A2C;
-  --ink:        #ECE7DA;
-  --muted:      #8C8778;
-  --line:       #2B3145;
-  --line-soft:  #212739;
+  --bg-overlay: rgba(15,20,12,.86);
+  --cream:      #10160D;
+  --paper:      #1B2415;
+  --navy:       #0B0F08;
+  --navy-2:     #172014;
+  --ink:        #EDEBDD;
+  --muted:      #8B9A7D;
+  --line:       #33422A;
+  --line-soft:  #28351F;
 }
 :root[data-theme="dark"] .grain{
   opacity:.7;
@@ -112,8 +113,8 @@ body{
 .grain{
   position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;
   background-image:
-    radial-gradient(circle at 20% 20%, rgba(16,27,51,0.035) 0, transparent 45%),
-    radial-gradient(circle at 80% 60%, rgba(214,40,57,0.03) 0, transparent 40%);
+    radial-gradient(circle at 20% 20%, rgba(62,83,52,0.04) 0, transparent 45%),
+    radial-gradient(circle at 80% 60%, rgba(194,65,95,0.035) 0, transparent 40%);
 }
 
 ::selection{ background:var(--orange); color:var(--on-dark); }
@@ -144,7 +145,7 @@ a{ color:inherit; }
   text-transform:uppercase;
   padding-bottom:6px;
 }
-.siteHead__mark--right{ color:#9fb0d6; text-align:right; }
+.siteHead__mark--right{ color:#B7C4A9; text-align:right; }
 .siteHead__right{
   display:flex; align-items:center; gap:12px;
   padding-bottom:6px;
@@ -187,7 +188,7 @@ a{ color:inherit; }
   display:flex; gap:14px; white-space:nowrap;
   font-family:var(--font-mono);
   font-size:11px; letter-spacing:.14em;
-  color:#8fa0c9;
+  color:#A9BC98;
   padding:7px 0;
   animation:ticker 22s linear infinite;
   width:max-content;
@@ -441,7 +442,7 @@ a{ color:inherit; }
   color:var(--muted);
 }
 .pill--ems{ color:var(--navy-2); border-color:var(--navy-2); }
-:root[data-theme="dark"] .pill--ems{ color:#8fa0c9; border-color:#3a4568; }
+:root[data-theme="dark"] .pill--ems{ color:#A9BC98; border-color:#3E5334; }
 .pill--paid{
   background:var(--status-paid-bg);
   border-color:var(--status-paid);
