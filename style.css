@@ -20,6 +20,16 @@
   --font-mono: 'IBM Plex Mono', monospace;
 
   --radius: 2px;
+
+  /* status colors — matched to the dropdown colors in the masterlist sheet */
+  --status-secured:   #1C4E9E; /* blue, like the sheet's SECURED pill */
+  --status-transit:   #F1592A; /* site accent — sheet doesn't have one combined color for the 3 merged statuses */
+  --status-admin:     #8A6D3B; /* gold/brown, like the sheet's ADMIN HOUSE pill */
+  --status-posted:    #2E9E44; /* green, like the sheet's POSTED OUT pill */
+  --status-paid:      #3C8C40;
+  --status-paid-bg:   #DFF2DA;
+  --status-pending:   #B5722A;
+  --status-pending-bg:#FBE4C8;
 }
 
 /* ---- dark mode ---- */
@@ -322,10 +332,10 @@ a{ color:inherit; }
   font-weight:600;
 }
 .statCard--total{ --bar:var(--navy); }
-.statCard--secured{ --bar:#2E7D4F; }
-.statCard--transit{ --bar:var(--orange); }
-.statCard--admin{ --bar:var(--navy-2); }
-.statCard--posted{ --bar:var(--red); }
+.statCard--secured{ --bar:var(--status-secured); }
+.statCard--transit{ --bar:var(--status-transit); }
+.statCard--admin{ --bar:var(--status-admin); }
+.statCard--posted{ --bar:var(--status-posted); }
 .statCard--other{ --bar:var(--muted); }
 
 /* ==========================================================================
@@ -384,6 +394,16 @@ a{ color:inherit; }
 }
 .pill--ems{ color:var(--navy-2); border-color:var(--navy-2); }
 :root[data-theme="dark"] .pill--ems{ color:#8fa0c9; border-color:#3a4568; }
+.pill--paid{
+  background:var(--status-paid-bg);
+  border-color:var(--status-paid);
+  color:var(--status-paid);
+}
+.pill--pending{
+  background:var(--status-pending-bg);
+  border-color:var(--status-pending);
+  color:var(--status-pending);
+}
 
 .orderCard__remark{
   margin-top:8px;
@@ -439,10 +459,10 @@ a{ color:inherit; }
   transform:rotate(-2deg);
   white-space:nowrap;
 }
-.stamp--secured{ --stamp-color:#2E7D4F; }
-.stamp--transit{ --stamp-color:var(--orange); transform:rotate(1.5deg); }
-.stamp--admin{ --stamp-color:var(--navy-2); }
-.stamp--posted{ --stamp-color:var(--red); transform:rotate(-1.2deg); }
+.stamp--secured{ --stamp-color:var(--status-secured); }
+.stamp--transit{ --stamp-color:var(--status-transit); transform:rotate(1.5deg); }
+.stamp--admin{ --stamp-color:var(--status-admin); }
+.stamp--posted{ --stamp-color:var(--status-posted); transform:rotate(-1.2deg); }
 .stamp--other{ --stamp-color:var(--muted); }
 
 @media (max-width:560px){
