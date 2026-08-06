@@ -32,6 +32,11 @@
   --status-pending-bg:#FBE4C8;
 
   --bg-overlay: rgba(241,236,224,.88);
+
+  /* text color for things that sit on a dark/accent surface (header, tag
+     chips, buttons) — stays light in both themes, unlike --paper which
+     flips to a dark card-surface color in dark mode */
+  --on-dark: #F4EFE2;
 }
 
 /* ---- dark mode ---- */
@@ -111,7 +116,7 @@ body{
     radial-gradient(circle at 80% 60%, rgba(214,40,57,0.03) 0, transparent 40%);
 }
 
-::selection{ background:var(--orange); color:var(--paper); }
+::selection{ background:var(--orange); color:var(--on-dark); }
 
 a{ color:inherit; }
 
@@ -122,7 +127,7 @@ a{ color:inherit; }
   position:sticky; top:0;
   z-index:20;
   background:var(--navy);
-  color:var(--paper);
+  color:var(--on-dark);
   border-bottom:3px solid var(--orange);
   box-shadow:0 6px 18px rgba(0,0,0,.18);
 }
@@ -147,7 +152,7 @@ a{ color:inherit; }
 .themeToggle{
   border:1px solid rgba(255,255,255,.25);
   background:transparent;
-  color:var(--paper);
+  color:var(--on-dark);
   width:30px; height:30px;
   display:flex; align-items:center; justify-content:center;
   font-size:14px;
@@ -230,7 +235,7 @@ a{ color:inherit; }
 .ann__tag{
   position:absolute; top:-11px; left:16px;
   background:var(--navy);
-  color:var(--paper);
+  color:var(--on-dark);
   font-family:var(--font-mono);
   font-size:10px; letter-spacing:.14em;
   padding:3px 9px;
@@ -284,7 +289,7 @@ a{ color:inherit; }
 .searchBar__btn{
   border:0; cursor:pointer;
   background:var(--orange);
-  color:var(--paper);
+  color:var(--on-dark);
   font-family:var(--font-body);
   font-weight:800;
   font-size:13px; letter-spacing:.08em;
@@ -407,7 +412,7 @@ a{ color:inherit; }
   font-family:var(--font-mono);
   font-size:11px; letter-spacing:.05em;
   background:var(--navy);
-  color:var(--paper);
+  color:var(--on-dark);
   padding:4px 8px;
   white-space:nowrap;
 }
@@ -476,7 +481,7 @@ a{ color:inherit; }
 .filterChip.is-active{
   background:var(--navy);
   border-color:var(--navy);
-  color:var(--paper);
+  color:var(--on-dark);
 }
 .filterChip:focus-visible{ outline:2px solid var(--red); outline-offset:2px; }
 
