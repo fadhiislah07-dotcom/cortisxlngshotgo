@@ -137,6 +137,21 @@ async function fetchTab(tab) {
     }
   }
 
+  // Fallback for QTY: an all-numeric column (like QTY, e.g. 1, 2, 1, 1...)
+  // gets its data-type auto-detected as "number" by Google's API, which then
+  // silently nulls out the one non-numeric cell in that column — the header
+  // word "QTY" itself — before it ever reaches this site. So if we couldn't
+  // read the QTY header as text, fall back to "the column right after ITEM",
+  // matching this sheet's consistent TAG/USERNAME/ITEM/QTY/... layout.
+  if (headerRowIndex !== -1 && colIndex.qty === undefined && colIndex.item !== undefined) {
+    const guess = colIndex.item + 1;
+    const alreadyUsed = Object.values(colIndex).includes(guess);
+    if (!alreadyUsed) {
+      colIndex.qty = guess;
+      colIndex._qtyGuessed = true;
+    }
+  }
+
   if (headerRowIndex === -1) {
     report.message = 'No row with TAG / USERNAME / STATUS headers was found in this tab.';
     TAB_REPORTS.push(report);
@@ -144,7 +159,9 @@ async function fetchTab(tab) {
   }
 
   report.columns = Object.fromEntries(
-    Object.entries(colIndex).map(([key, idx]) => [key, colLetter(idx)])
+    Object.entries(colIndex)
+      .filter(([key]) => !key.startsWith("_"))
+      .map(([key, idx]) => [key, colLetter(idx) + (key === "qty" && colIndex._qtyGuessed ? " (guessed)" : "")])
   );
 
   const out = [];
