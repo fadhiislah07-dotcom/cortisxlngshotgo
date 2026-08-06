@@ -30,10 +30,13 @@
   --status-paid-bg:   #DFF2DA;
   --status-pending:   #B5722A;
   --status-pending-bg:#FBE4C8;
+
+  --bg-overlay: rgba(241,236,224,.88);
 }
 
 /* ---- dark mode ---- */
 :root[data-theme="dark"]{
+  --bg-overlay: rgba(13,18,32,.86);
   --cream:      #0D1220;
   --paper:      #161C2C;
   --navy:       #090D18;
@@ -58,6 +61,46 @@ body{
   -webkit-font-smoothing:antialiased;
   position:relative;
   transition:background .2s ease, color .2s ease;
+}
+
+/* rotating photo backdrop */
+.bgSlideshow{
+  position:fixed; inset:0;
+  z-index:-2;
+  overflow:hidden;
+  background:var(--navy);
+}
+.bgSlideshow img{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  opacity:0;
+  filter:grayscale(20%) brightness(.6) contrast(1.05);
+  animation:bgFade 36s infinite;
+}
+.bgSlideshow img:nth-child(1){ animation-delay:0s; }
+.bgSlideshow img:nth-child(2){ animation-delay:6s; }
+.bgSlideshow img:nth-child(3){ animation-delay:12s; }
+.bgSlideshow img:nth-child(4){ animation-delay:18s; }
+.bgSlideshow img:nth-child(5){ animation-delay:24s; }
+.bgSlideshow img:nth-child(6){ animation-delay:30s; }
+@keyframes bgFade{
+  0%{ opacity:0; }
+  4%{ opacity:1; }
+  13%{ opacity:1; }
+  19%{ opacity:0; }
+  100%{ opacity:0; }
+}
+@media (prefers-reduced-motion:reduce){
+  .bgSlideshow img{ animation:none; opacity:0; }
+  .bgSlideshow img:first-child{ opacity:1; }
+}
+
+.bgOverlay{
+  position:fixed; inset:0;
+  z-index:-1;
+  background:var(--bg-overlay);
+  transition:background .2s ease;
 }
 
 /* subtle paper grain so the cream field doesn't feel flat/AI-default */
