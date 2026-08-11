@@ -146,6 +146,30 @@ a{ color:inherit; }
   padding-bottom:6px;
 }
 .siteHead__mark--right{ color:#B7C4A9; text-align:right; }
+
+.siteNav{
+  display:flex;
+  background:var(--navy-2);
+  border-top:1px solid rgba(255,255,255,.1);
+}
+.siteNav__link{
+  padding:11px 22px;
+  font-family:var(--font-mono);
+  font-size:12px; letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--on-dark);
+  opacity:.62;
+  text-decoration:none;
+  border-bottom:2px solid transparent;
+  transition:opacity .15s ease, border-color .15s ease, background .15s ease;
+}
+.siteNav__link:hover{ opacity:1; background:rgba(255,255,255,.05); }
+.siteNav__link.is-active{
+  opacity:1;
+  border-bottom-color:var(--orange);
+  background:rgba(255,255,255,.06);
+}
+.siteNav__link:focus-visible{ outline:2px solid var(--orange-2); outline-offset:-2px; }
 .siteHead__right{
   display:flex; align-items:center; gap:12px;
   padding-bottom:6px;
@@ -491,6 +515,47 @@ a{ color:inherit; }
   font-size:12.5px;
   color:var(--muted);
   padding:20px 2px;
+}
+
+/* ==========================================================================
+   EVENTS & UPDATES feed
+   ========================================================================== */
+.updateFeed{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  margin-bottom:20px;
+}
+.updateCard{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-left:4px solid var(--orange);
+  padding:18px 20px;
+  display:grid;
+  grid-template-columns:110px 1fr;
+  gap:16px;
+}
+.updateCard__date{
+  font-family:var(--font-mono);
+  font-size:11px; letter-spacing:.08em;
+  color:var(--muted);
+  padding-top:2px;
+  white-space:nowrap;
+}
+.updateCard__title{
+  margin:0 0 6px;
+  font-size:16px; font-weight:700;
+  color:var(--ink);
+}
+.updateCard__text{
+  margin:0;
+  font-size:14px; line-height:1.6;
+  color:var(--ink);
+}
+.updateCard__text a{ color:var(--red); font-weight:600; }
+@media (max-width:560px){
+  .updateCard{ grid-template-columns:1fr; gap:6px; }
+  .updateCard__date{ order:-1; }
 }
 
 /* status stamp — the signature element, echoes the red name-tag stamps
