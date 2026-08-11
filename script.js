@@ -249,7 +249,8 @@ function renderSyncPanel() {
   }).join("");
 }
 
-syncToggle.addEventListener("click", () => {
+if (syncToggle) {
+  syncToggle.addEventListener("click", () => {
   const isHidden = syncPanel.hasAttribute("hidden");
   if (isHidden) {
     syncPanel.removeAttribute("hidden");
@@ -258,7 +259,8 @@ syncToggle.addEventListener("click", () => {
     syncPanel.setAttribute("hidden", "");
     syncToggle.textContent = "Sync details \u25be";
   }
-});
+  });
+}
 
 /* ---------------------------------------------------------------------------
    Status classification
@@ -364,11 +366,13 @@ function applyFilter(filterKey) {
   renderOrders(filtered);
 }
 
-filterRow.addEventListener("click", (e) => {
-  const btn = e.target.closest(".filterChip");
-  if (!btn) return;
-  applyFilter(btn.dataset.filter);
-});
+if (filterRow) {
+  filterRow.addEventListener("click", (e) => {
+    const btn = e.target.closest(".filterChip");
+    if (!btn) return;
+    applyFilter(btn.dataset.filter);
+  });
+}
 
 /* ---------------------------------------------------------------------------
    Search
@@ -404,7 +408,9 @@ async function handleSearch(e) {
   searchStatus.textContent = `Found ${matches.length} order${matches.length === 1 ? "" : "s"} for @${query}.`;
 }
 
-searchForm.addEventListener("submit", handleSearch);
+if (searchForm) {
+  searchForm.addEventListener("submit", handleSearch);
+}
 
 /* ---------------------------------------------------------------------------
    Dark mode
@@ -431,4 +437,6 @@ if (themeToggle) {
 /* ---------------------------------------------------------------------------
    Init
 --------------------------------------------------------------------------- */
-loadAllData();
+if (searchForm) {
+  loadAllData();
+}
