@@ -55,6 +55,7 @@ const filterRow = $("#filterRow");
 const themeToggle = $("#themeToggle");
 const syncToggle = $("#syncToggle");
 const syncPanel = $("#syncPanel");
+const recentSearchesEl = $("#recentSearches");
 
 /* ---------------------------------------------------------------------------
    Helpers
@@ -375,6 +376,68 @@ if (filterRow) {
 }
 
 /* ---------------------------------------------------------------------------
+   Recent searches (remembered on this device via localStorage)
+--------------------------------------------------------------------------- */
+
+const RECENT_KEY = "recentSearches";
+const RECENT_MAX = 5;
+
+function loadRecentSearches() {
+  try {
+    const list = JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentSearch(username) {
+  let list = loadRecentSearches();
+  list = list.filter((u) => u !== username);
+  list.unshift(username);
+  list = list.slice(0, RECENT_MAX);
+  try {
+    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+  } catch {
+    /* ignore storage errors (e.g. private browsing) */
+  }
+  renderRecentSearches();
+}
+
+function renderRecentSearches() {
+  if (!recentSearchesEl) return;
+  const list = loadRecentSearches();
+  if (list.length === 0) {
+    recentSearchesEl.innerHTML = "";
+    return;
+  }
+  const chips = list
+    .map((u) => `<button type="button" class="recentChip" data-username="${escapeHTML(u)}">@${escapeHTML(u)}</button>`)
+    .join("");
+  recentSearchesEl.innerHTML =
+    `<span class="recentSearches__label">Recent:</span>${chips}` +
+    `<button type="button" class="recentChip recentChip--clear" id="clearRecent">Clear</button>`;
+}
+
+if (recentSearchesEl) {
+  recentSearchesEl.addEventListener("click", (e) => {
+    if (e.target.id === "clearRecent") {
+      try {
+        localStorage.removeItem(RECENT_KEY);
+      } catch {
+        /* ignore */
+      }
+      renderRecentSearches();
+      return;
+    }
+    const btn = e.target.closest(".recentChip");
+    if (!btn || !btn.dataset.username) return;
+    searchInput.value = btn.dataset.username;
+    searchForm.requestSubmit();
+  });
+}
+
+/* ---------------------------------------------------------------------------
    Search
 --------------------------------------------------------------------------- */
 
@@ -387,6 +450,8 @@ async function handleSearch(e) {
     searchStatus.textContent = "Still loading the masterlist — try again in a second.";
     return;
   }
+
+  saveRecentSearch(query);
 
   const matches = ALL_ORDERS.filter((o) => o.usernameKey === query);
 
@@ -439,4 +504,5 @@ if (themeToggle) {
 --------------------------------------------------------------------------- */
 if (searchForm) {
   loadAllData();
+  renderRecentSearches();
 }
