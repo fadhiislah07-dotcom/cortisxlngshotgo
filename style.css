@@ -602,6 +602,37 @@ a{ color:inherit; }
   border:1px solid var(--line);
   margin:10px 0 12px;
 }
+
+/* direct video file (mp4 etc.) */
+.updateCard__video{
+  display:block;
+  width:100%;
+  max-height:640px;
+  border:1px solid var(--line);
+  background:#000;
+  margin:10px 0 12px;
+}
+
+/* embedded video (YouTube, TikTok, etc.) — keeps a 16:9 box so the iframe
+   never overflows or gets squished, regardless of screen size. Add
+   "updateCard__videoWrap--portrait" for vertical/phone-shot videos instead. */
+.updateCard__videoWrap{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  border:1px solid var(--line);
+  margin:10px 0 12px;
+  background:#000;
+}
+.updateCard__videoWrap--portrait{
+  aspect-ratio:300/422.54;
+  max-width:360px;
+}
+.updateCard__videoWrap iframe{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  border:0;
+}
 @media (max-width:560px){
   .updateCard{ grid-template-columns:1fr; gap:6px; }
   .updateCard__date{ order:-1; }
