@@ -56,6 +56,8 @@ const themeToggle = $("#themeToggle");
 const syncToggle = $("#syncToggle");
 const syncPanel = $("#syncPanel");
 const recentSearchesEl = $("#recentSearches");
+const syncFooterStatus = $("#syncFooterStatus");
+const refreshDataBtn = $("#refreshDataBtn");
 
 /* ---------------------------------------------------------------------------
    Helpers
@@ -217,6 +219,7 @@ async function fetchTab(tab) {
 
 async function loadAllData() {
   searchStatus.textContent = "Loading masterlist…";
+  if (syncFooterStatus) syncFooterStatus.textContent = "Syncing with masterlist\u2026";
   TAB_REPORTS = [];
 
   const results = await Promise.all(CONFIG.SHEET_TABS.map(fetchTab));
@@ -230,6 +233,11 @@ async function loadAllData() {
       "The masterlist loaded, but no order rows were found — open \u201CSync details\u201D below to see why.";
   } else {
     searchStatus.textContent = "";
+  }
+
+  if (syncFooterStatus) {
+    const time = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    syncFooterStatus.textContent = `Synced with masterlist \u00b7 ${time} \u00b7 ${ALL_ORDERS.length} order lines loaded`;
   }
 }
 
@@ -505,4 +513,17 @@ if (themeToggle) {
 if (searchForm) {
   loadAllData();
   renderRecentSearches();
+}
+
+if (refreshDataBtn) {
+  refreshDataBtn.addEventListener("click", async () => {
+    refreshDataBtn.disabled = true;
+    refreshDataBtn.classList.add("is-spinning");
+    await loadAllData();
+    if (searchInput.value.trim()) {
+      searchForm.requestSubmit();
+    }
+    refreshDataBtn.disabled = false;
+    refreshDataBtn.classList.remove("is-spinning");
+  });
 }
