@@ -527,3 +527,45 @@ if (refreshDataBtn) {
     refreshDataBtn.classList.remove("is-spinning");
   });
 }
+
+/* ---------------------------------------------------------------------------
+   Scroll-triggered video playback (Events & Updates page)
+   Embedded videos (iframes) are lazy-loaded and start muted+autoplaying the
+   moment they scroll into view — browsers block autoplay-with-sound
+   entirely, so this matches how Instagram/Twitter feeds behave: the video
+   plays automatically, and the player's own controls let people tap to
+   unmute for sound. Runs on any page that has one of these, no guard needed.
+--------------------------------------------------------------------------- */
+(function setupScrollVideos() {
+  const lazyIframes = document.querySelectorAll(".updateCard__videoWrap iframe[data-src]");
+  const nativeVideos = document.querySelectorAll("video.updateCard__video");
+  if (lazyIframes.length === 0 && nativeVideos.length === 0) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const el = entry.target;
+        if (entry.isIntersecting) {
+          if (el.tagName === "IFRAME" && el.dataset.src && !el.src) {
+            const sep = el.dataset.src.includes("?") ? "&" : "?";
+            el.src = `${el.dataset.src}${sep}autoplay=1&mute=1`;
+          }
+          if (el.tagName === "VIDEO") {
+            el.muted = true;
+            el.playsInline = true;
+            el.play().catch(() => {
+              /* autoplay can still be blocked in some browsers — that's fine,
+                 the visible controls let the person press play manually */
+            });
+          }
+        } else if (el.tagName === "VIDEO") {
+          el.pause();
+        }
+      });
+    },
+    { threshold: 0.6 }
+  );
+
+  lazyIframes.forEach((el) => observer.observe(el));
+  nativeVideos.forEach((el) => observer.observe(el));
+})();
