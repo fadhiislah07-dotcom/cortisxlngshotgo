@@ -558,8 +558,18 @@ if (refreshDataBtn) {
                  the visible controls let the person press play manually */
             });
           }
-        } else if (el.tagName === "VIDEO") {
-          el.pause();
+        } else {
+          if (el.tagName === "VIDEO") {
+            el.pause();
+            el.muted = true; // re-mute in case they'd manually unmuted it
+          }
+          if (el.tagName === "IFRAME" && el.dataset.src) {
+            // cross-origin players can't be muted directly from outside, so
+            // unload the iframe entirely on scroll-away — this stops the
+            // audio completely. It reloads fresh (muted) next time it
+            // scrolls back into view.
+            el.src = "";
+          }
         }
       });
     },
