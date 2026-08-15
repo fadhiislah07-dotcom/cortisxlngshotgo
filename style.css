@@ -653,6 +653,43 @@ a{ color:inherit; }
 .emptyState[hidden]{ display:none; }
 
 /* ==========================================================================
+   SYNC FOOTER — status line + manual refresh button
+   ========================================================================== */
+.syncFooter{
+  text-align:center;
+  padding:34px 12px 6px;
+}
+.syncFooter__status{
+  margin:0 0 14px;
+  font-family:var(--font-mono);
+  font-size:12px;
+  color:var(--muted);
+}
+.refreshBtn{
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--paper);
+  border:1.5px solid var(--line);
+  color:var(--red);
+  font-family:var(--font-body);
+  font-weight:700;
+  font-size:13px;
+  padding:10px 22px;
+  border-radius:999px;
+  cursor:pointer;
+  transition:border-color .15s ease, background .15s ease, transform .1s ease;
+}
+.refreshBtn:hover{ border-color:var(--red); background:var(--status-paid-bg); }
+.refreshBtn:active{ transform:scale(.97); }
+.refreshBtn:focus-visible{ outline:2px solid var(--red); outline-offset:2px; }
+.refreshBtn:disabled{ opacity:.6; cursor:default; }
+.refreshBtn.is-spinning .refreshBtn__icon{ animation:spin .8s linear infinite; }
+.refreshBtn__icon{ display:inline-block; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce){
+  .refreshBtn.is-spinning .refreshBtn__icon{ animation:none; }
+}
+
+/* ==========================================================================
    FOOTER
    ========================================================================== */
 .siteFoot{
