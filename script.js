@@ -548,7 +548,7 @@ if (refreshDataBtn) {
         if (entry.isIntersecting) {
           if (el.tagName === "IFRAME" && el.dataset.src && !el.src) {
             const sep = el.dataset.src.includes("?") ? "&" : "?";
-            el.src = `${el.dataset.src}${sep}autoplay=1&mute=1`;
+            el.src = `${el.dataset.src}${sep}autoplay=1&muted=1`;
           }
           if (el.tagName === "VIDEO") {
             el.muted = true;
