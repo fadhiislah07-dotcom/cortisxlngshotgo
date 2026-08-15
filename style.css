@@ -595,8 +595,10 @@ a{ color:inherit; }
 .updateCard__poster{
   display:block;
   width:100%;
-  max-height:420px;
-  object-fit:cover;
+  height:auto;
+  max-height:640px;
+  object-fit:contain;
+  background:var(--cream);
   border:1px solid var(--line);
   margin:10px 0 12px;
 }
