@@ -49,6 +49,7 @@ const searchInput = $("#searchInput");
 const searchStatus = $("#searchStatus");
 const resultsSec = $("#resultsSec");
 const emptyState = $("#emptyState");
+const announcementsEl = $("#announcements");
 const dashboardEl = $("#dashboard");
 const orderListEl = $("#orderList");
 const filterRow = $("#filterRow");
@@ -459,6 +460,8 @@ async function handleSearch(e) {
     return;
   }
 
+  if (announcementsEl) announcementsEl.classList.add("is-collapsed");
+
   saveRecentSearch(query);
 
   const matches = ALL_ORDERS.filter((o) => o.usernameKey === query);
@@ -483,6 +486,11 @@ async function handleSearch(e) {
 
 if (searchForm) {
   searchForm.addEventListener("submit", handleSearch);
+  searchInput.addEventListener("input", () => {
+    if (!searchInput.value.trim() && announcementsEl) {
+      announcementsEl.classList.remove("is-collapsed");
+    }
+  });
 }
 
 /* ---------------------------------------------------------------------------
