@@ -224,24 +224,36 @@ a{ color:inherit; }
 /* ==========================================================================
    ANNOUNCEMENTS
    ========================================================================== */
+
+/* Collapse wrapper — animates via grid-template-rows (1fr -> 0fr), which
+   smoothly animates to the content's ACTUAL height. This reads far
+   smoother than animating max-height to a guessed fixed value, which
+   speeds up/slows down unevenly since the animated number doesn't match
+   the real content height. */
+.annCollapse{
+  display:grid;
+  grid-template-rows:1fr;
+  opacity:1;
+  transition:grid-template-rows .5s cubic-bezier(.4,0,.2,1), opacity .35s ease;
+}
+.annCollapse > *{
+  overflow:hidden;
+  min-height:0;
+}
+.annCollapse.is-collapsed{
+  grid-template-rows:0fr;
+  opacity:0;
+  pointer-events:none;
+}
+@media (prefers-reduced-motion:reduce){
+  .annCollapse{ transition:none; }
+}
+
 .announcements{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:16px;
   margin-bottom:44px;
-  overflow:hidden;
-  max-height:600px;
-  opacity:1;
-  transition:max-height .4s ease, opacity .3s ease, margin-bottom .4s ease;
-}
-.announcements.is-collapsed{
-  max-height:0;
-  opacity:0;
-  margin-bottom:0;
-  pointer-events:none;
-}
-@media (prefers-reduced-motion:reduce){
-  .announcements{ transition:none; }
 }
 @media (max-width:700px){
   .announcements{ grid-template-columns:1fr; }
