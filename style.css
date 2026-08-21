@@ -229,6 +229,19 @@ a{ color:inherit; }
   grid-template-columns:1fr 1fr;
   gap:16px;
   margin-bottom:44px;
+  overflow:hidden;
+  max-height:600px;
+  opacity:1;
+  transition:max-height .4s ease, opacity .3s ease, margin-bottom .4s ease;
+}
+.announcements.is-collapsed{
+  max-height:0;
+  opacity:0;
+  margin-bottom:0;
+  pointer-events:none;
+}
+@media (prefers-reduced-motion:reduce){
+  .announcements{ transition:none; }
 }
 @media (max-width:700px){
   .announcements{ grid-template-columns:1fr; }
