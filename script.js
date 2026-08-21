@@ -347,11 +347,16 @@ function renderOrders(orders) {
     .join("");
 }
 
+// Escapes text for safe use in both HTML content and HTML attribute values
+// (e.g. data-username="..."). Quotes must be escaped too, or a value like
+// foo" onmouseover="..." can break out of a "..." attribute.
 function escapeHTML(str) {
   return String(str)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function emsClass(raw) {
@@ -470,8 +475,12 @@ async function handleSearch(e) {
     resultsSec.hidden = true;
     emptyState.hidden = false;
     emptyState.querySelector(".emptyState__ticketTop").textContent = "NO ORDERS FOUND";
+    // Set via textContent (not innerHTML), so no HTML-escaping is needed or
+    // wanted here — escaping first would make special characters show up
+    // literally (e.g. "&amp;" instead of "&") since textContent won't
+    // decode them back.
     emptyState.querySelector("p").textContent =
-      `We couldn't find any orders under @${escapeHTML(query)}. Double-check your Telegram username and try again.`;
+      `We couldn't find any orders under @${query}. Double-check your Telegram username and try again.`;
     searchStatus.textContent = "";
     return;
   }
