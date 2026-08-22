@@ -870,6 +870,7 @@ a{ color:inherit; }
   font-weight:700;
   font-size:13.5px;
   color:var(--red);
+  text-decoration:none;
 }
 .adminsList__role{
   font-size:13px;
